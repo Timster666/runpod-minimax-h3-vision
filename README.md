@@ -25,6 +25,7 @@ MiniMax H3 Vision has three tabs:
 |---|---|
 | **MOSS-Image SFT (INT8)** | 5.4 GB |
 | **MOSS-Image SFT Turbo 8-step (INT8)** | 5.4 GB |
+| **MOSS-Image SFT (BF16)**, the full-size model | 10.2 GB |
 
 **All recommended LoRAs:** the **MMH3 Realism V2** LoRA and the **MiniMax H3 Turbo** LoRA.
 
@@ -36,7 +37,7 @@ MiniMax H3 Vision has three tabs:
 
 1. Pick a GPU with **48 GB+ VRAM** (L40S, A6000, A100, H100, RTX PRO 6000) and **64 GB+ system RAM**.
 2. Set the **CUDA filter to 13.0+** and the **Volume Disk to 200 GB**.
-3. Deploy. The first start downloads about 160 GB of models (15–25 min). Watch the **Logs** for `Starting ComfyUI on port 8188`.
+3. Deploy. The first start downloads about 170 GB of models (15–25 min). Watch the **Logs** for `Starting ComfyUI on port 8188`.
 4. Click **Connect → ComfyUI**. **MiniMax H3 Vision** is in the left sidebar.
 
 Later starts are much faster, because the models are already there. Each start also updates MiniMax H3 Vision to its newest version.
@@ -51,7 +52,8 @@ Every model has an on/off switch. Click **Edit Template** when you deploy and se
 | `ENABLE_SINGULARITY` | Singularity v2 | 21 GB |
 | `ENABLE_10EROS` | 10Eros Max beta 7 | 23 GB |
 | `ENABLE_MOSS_TURBO` | MOSS-Image 8-step turbo | 5.4 GB |
-| `ENABLE_MOSS_IMAGE` | MOSS-Image (the whole Image tab) | about 18 GB with the turbo |
+| `ENABLE_MOSS_BF16` | MOSS-Image SFT full-size BF16 | 10.2 GB |
+| `ENABLE_MOSS_IMAGE` | MOSS-Image (the whole Image tab) | about 28 GB with the turbo and BF16 |
 
 With the first three off, a **100 GB** volume is enough.
 

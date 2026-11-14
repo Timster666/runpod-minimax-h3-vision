@@ -18,6 +18,7 @@ LIVE_PREVIEW="${LIVE_PREVIEW:-true}"                    # taeh3 moving live prev
 # Image tab (MOSS-Image)
 ENABLE_MOSS_IMAGE="${ENABLE_MOSS_IMAGE:-true}"          # MOSS-Image SFT INT8 + its text encoder and VAE
 ENABLE_MOSS_TURBO="${ENABLE_MOSS_TURBO:-true}"          # MOSS-Image 8-step turbo (Spectrallic DMD, 5.4 GB); needs ENABLE_MOSS_IMAGE
+ENABLE_MOSS_BF16="${ENABLE_MOSS_BF16:-true}"            # MOSS-Image SFT full-size BF16 (10.2 GB); needs ENABLE_MOSS_IMAGE
 CIVITAI_TOKEN="${CIVITAI_TOKEN:-}"                      # only if Civitai asks for a login (Realism LoRA)
 
 # ---- Other settings ---------------------------------------------------------
@@ -152,12 +153,13 @@ fi
 is_on "$ENABLE_SINGULARITY" && FILES+=("WarmBloodAban/Minimax-h3_Singularity|Minimax-h3_Singularity_ref2va_v2_pruned_int8.safetensors|diffusion_models")
 is_on "$ENABLE_10EROS"      && FILES+=("TenStrip/10Eros-Max|10Eros_Max_h3_8stepTURBO_beta7_fix1-native_int8_protected_edges_HQ.safetensors|diffusion_models")
 is_on "$LIVE_PREVIEW"    && FILES+=("OzzyGT/taeh3|taeh3.safetensors|vae_approx")
-# MOSS-Image for the Image tab: the INT8 model, its text encoder and VAE, and the 8-step turbo
+# MOSS-Image for the Image tab: the INT8 model, its text encoder and VAE, the 8-step turbo and the full-size BF16
 if is_on "$ENABLE_MOSS_IMAGE"; then
   FILES+=("Comfy-Org/MOSS-Image|moss_image_sft_int8_convrot.safetensors|diffusion_models"
           "Comfy-Org/MOSS-Image|qwen3.5_9b_w4a8_gptq.safetensors|text_encoders"
           "Comfy-Org/MOSS-Image|flux2-vae_small.safetensors|vae")
   is_on "$ENABLE_MOSS_TURBO" && FILES+=("Spectrallic/MOSS-Image-SFT-8step-DMD-int8-convrot|moss_image_sft_8stepdmd_int8_convrot.safetensors|diffusion_models")
+  is_on "$ENABLE_MOSS_BF16"  && FILES+=("Comfy-Org/MOSS-Image|moss_image_sft_bf16.safetensors|diffusion_models")
 fi
 # Civitai downloads: "model-id|version regex|file regex|file exclude regex|save as|folder|already-there glob"
 # The file is saved under the name MiniMax H3 Vision's LoRA list shows.
