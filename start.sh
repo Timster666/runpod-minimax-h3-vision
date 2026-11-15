@@ -96,6 +96,21 @@ fi
 mkdir -p "$MODELS"/{diffusion_models/hyperflow,text_encoders,vae,vae_approx,loras,checkpoints,upscale_models,embeddings,clip_vision} \
          "$COMFY/output" "$COMFY/input" "$COMFY/user" "$COMFY/custom_nodes"
 
+# LoRAs are sorted by model: MiniMax H3 Vision's Video tab lists loras/MiniMax H3, the Image tab
+# loras/MOSS Image, Klein loras/Flux Klein (loose files in loras show everywhere, as Not sorted).
+H3_LORAS="$MODELS/loras/MiniMax H3"
+mkdir -p "$H3_LORAS" "$MODELS/loras/MOSS Image" "$MODELS/loras/Flux Klein"
+# Built-in H3 LoRAs downloaded by earlier versions of this template lie loose in loras: move them in.
+# (MiniMax H3 Vision finds a LoRA by its file name, so saved settings and old clips keep working.)
+for f in "$MODELS"/loras/minimax_h3_turbo_*.safetensors "$MODELS"/loras/MMH3-Realism*.safetensors; do
+  [[ -f "$f" ]] || continue
+  if [[ -e "$H3_LORAS/$(basename "$f")" ]]; then
+    echo "[start] $(basename "$f") is in loras/MiniMax H3 already; the loose copy stays where it is"
+  else
+    mv "$f" "$H3_LORAS/" && echo "[start] Moved LoRA $(basename "$f") into loras/MiniMax H3"
+  fi
+done
+
 # ---- Optional update + Python packages --------------------------------------
 CONSTRAINTS=()
 [[ -f /opt/torch-constraints.txt ]] && CONSTRAINTS=(-c /opt/torch-constraints.txt)   # keep the image's PyTorch
@@ -123,11 +138,12 @@ for wf in /opt/default_workflows/*.json; do
   fi
 done
 
-# Bundled LoRAs → models/loras (never overwrites a file that's already there)
+# Bundled LoRAs (MiniMax H3 ones) → models/loras/MiniMax H3 (skipped when a file of that name is
+# anywhere in loras already)
 for lora in /opt/default_loras/*.safetensors; do
   [[ -e "$lora" ]] || continue
-  if [[ ! -e "$MODELS/loras/$(basename "$lora")" ]]; then
-    cp "$lora" "$MODELS/loras/" && echo "[start] Added LoRA: $(basename "$lora")"
+  if [[ -z "$(find "$MODELS/loras" -name "$(basename "$lora")" -print -quit)" ]]; then
+    cp "$lora" "$H3_LORAS/" && echo "[start] Added LoRA: MiniMax H3/$(basename "$lora")"
   fi
 done
 
@@ -148,7 +164,7 @@ fi
 if is_on "$ENABLE_MINIMAX_H3"; then
   FILES+=("Comfy-Org/MiniMax-H3|minimax_h3_ref2va_pruned_int8_convrot.safetensors|diffusion_models"
           "Comfy-Org/MiniMax-H3|minimax_h3_fl2va_pruned_int8_convrot.safetensors|diffusion_models"
-          "larryvrh/MiniMax-H3-Turbo-Lora|minimax_h3_turbo_v4_step600_ema.safetensors|loras")
+          "larryvrh/MiniMax-H3-Turbo-Lora|minimax_h3_turbo_v4_step600_ema.safetensors|loras/MiniMax H3")
 fi
 is_on "$ENABLE_SINGULARITY" && FILES+=("WarmBloodAban/Minimax-h3_Singularity|Minimax-h3_Singularity_ref2va_v2_pruned_int8.safetensors|diffusion_models")
 is_on "$ENABLE_10EROS"      && FILES+=("TenStrip/10Eros-Max|10Eros_Max_h3_8stepTURBO_beta7_fix1-native_int8_protected_edges_HQ.safetensors|diffusion_models")
@@ -164,7 +180,7 @@ fi
 # Civitai downloads: "model-id|version regex|file regex|file exclude regex|save as|folder|already-there glob"
 # The file is saved under the name MiniMax H3 Vision's LoRA list shows.
 CIVITAI=()
-is_on "$REALISM_LORA" && CIVITAI+=("3041489|v2|realism.*\.safetensors$|hyperflow|MMH3-Realism-V2.safetensors|loras|MMH3-Realism*.safetensors")
+is_on "$REALISM_LORA" && CIVITAI+=("3041489|v2|realism.*\.safetensors$|hyperflow|MMH3-Realism-V2.safetensors|loras/MiniMax H3|MMH3-Realism*.safetensors")
 
 any_model=false
 for v in ENABLE_HYPERFLOW ENABLE_MINIMAX_H3 ENABLE_SINGULARITY ENABLE_10EROS; do
