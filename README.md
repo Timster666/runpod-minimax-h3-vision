@@ -59,6 +59,8 @@ Every model has an on/off switch. Click **Edit Template** when you deploy and se
 | `ENABLE_MOSS_TURBO` | MOSS-Image 8-step turbo | 5.4 GB |
 | `ENABLE_MOSS_BF16` | MOSS-Image SFT full-size BF16 | 10.2 GB |
 | `ENABLE_MOSS_IMAGE` | MOSS-Image (the whole Image tab) | about 28 GB with the turbo and BF16 |
+| `ENABLE_KLEIN_9B` | FLUX.2 [klein] 9B Distilled, with its text encoder (8.1 GB) and VAE. **On**, needs `HF_TOKEN` | the model, encoder and VAE |
+| `ENABLE_KLEIN_9B_BASE` | FLUX.2 [klein] 9B Base (undistilled, slower). **Off**, needs `HF_TOKEN` | the model |
 
 With the first three off, a **100 GB** volume is enough.
 
@@ -68,6 +70,7 @@ With the first three off, a **100 GB** volume is enough.
 | `UPDATE_VISION` | `true` | `false` = keep the MiniMax H3 Vision version on the volume |
 | `UPDATE_COMFYUI` | `false` | `true` = update ComfyUI on start |
 | `JUPYTER_PASSWORD` | — | Set to require a Jupyter login |
+| `HF_TOKEN` | — | Needed for Klein: a Hugging Face read token from an account that accepted the FLUX Non-Commercial License on [FLUX.2-klein-9b-fp8](https://huggingface.co/black-forest-labs/FLUX.2-klein-9b-fp8) (and [FLUX.2-klein-base-9b-fp8](https://huggingface.co/black-forest-labs/FLUX.2-klein-base-9b-fp8) for Base). Without it, Klein is skipped with a warning in the log |
 | `CIVITAI_TOKEN` | — | Only if Civitai asks for a login for the Realism LoRA |
 
 ## Where things are saved
@@ -77,4 +80,4 @@ Everything is in `/workspace/ComfyUI`: `models`, `custom_nodes`, `output` and mo
 `8188` ComfyUI · `8888` JupyterLab · `22` SSH
 
 ## Licenses
-MiniMax H3 and the models built on it use the **MiniMax H3 Community License**: check it before commercial use. MOSS-Image has its own license, and so do the LoRAs. MiniMax H3 Vision is GPL-3.0.
+MiniMax H3 and the models built on it use the **MiniMax H3 Community License**: check it before commercial use. MOSS-Image has its own license, and so do the LoRAs. FLUX.2 [klein] 9B is under the FLUX Non-Commercial License. MiniMax H3 Vision is GPL-3.0.

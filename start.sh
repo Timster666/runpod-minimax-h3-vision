@@ -19,6 +19,9 @@ LIVE_PREVIEW="${LIVE_PREVIEW:-true}"                    # taeh3 moving live prev
 ENABLE_MOSS_IMAGE="${ENABLE_MOSS_IMAGE:-true}"          # MOSS-Image SFT INT8 + its text encoder and VAE
 ENABLE_MOSS_TURBO="${ENABLE_MOSS_TURBO:-true}"          # MOSS-Image 8-step turbo (Spectrallic DMD, 5.4 GB); needs ENABLE_MOSS_IMAGE
 ENABLE_MOSS_BF16="${ENABLE_MOSS_BF16:-true}"            # MOSS-Image SFT full-size BF16 (10.2 GB); needs ENABLE_MOSS_IMAGE
+ENABLE_KLEIN_9B="${ENABLE_KLEIN_9B:-true}"              # FLUX.2 [klein] 9B distilled fp8 + its text encoder and VAE; needs HF_TOKEN
+ENABLE_KLEIN_9B_BASE="${ENABLE_KLEIN_9B_BASE:-false}"   # FLUX.2 [klein] 9B Base fp8 (undistilled, slower); needs HF_TOKEN
+HF_TOKEN="${HF_TOKEN:-}"                                # Hugging Face token of an account that accepted the FLUX Non-Commercial License
 CIVITAI_TOKEN="${CIVITAI_TOKEN:-}"                      # only if Civitai asks for a login (Realism LoRA)
 
 # ---- Other settings ---------------------------------------------------------
@@ -177,6 +180,29 @@ if is_on "$ENABLE_MOSS_IMAGE"; then
   is_on "$ENABLE_MOSS_TURBO" && FILES+=("Spectrallic/MOSS-Image-SFT-8step-DMD-int8-convrot|moss_image_sft_8stepdmd_int8_convrot.safetensors|diffusion_models")
   is_on "$ENABLE_MOSS_BF16"  && FILES+=("Comfy-Org/MOSS-Image|moss_image_sft_bf16.safetensors|diffusion_models")
 fi
+# FLUX.2 [klein] 9B for the Klein tab. Black Forest Labs' model files are gated: the download needs HF_TOKEN
+# from a Hugging Face account that accepted the license on both repos (FLUX.2-klein-9b-fp8, FLUX.2-klein-base-9b-fp8).
+if is_on "$ENABLE_KLEIN_9B" || is_on "$ENABLE_KLEIN_9B_BASE"; then
+  klein=()
+  for pick in "ENABLE_KLEIN_9B|black-forest-labs/FLUX.2-klein-9b-fp8|flux-2-klein-9b-fp8.safetensors" \
+              "ENABLE_KLEIN_9B_BASE|black-forest-labs/FLUX.2-klein-base-9b-fp8|flux-2-klein-base-9b-fp8.safetensors"; do
+    IFS='|' read -r switch repo file <<< "$pick"
+    is_on "${!switch}" || continue
+    if [[ -n "$HF_TOKEN" || -s "$MODELS/diffusion_models/$file" ]]; then
+      klein+=("$repo|$file|diffusion_models")
+    else
+      echo "[start] !!! $switch is on, but HF_TOKEN isn't set: skipping $file."
+      echo "[start] !!!   Accept the license at https://huggingface.co/$repo, make a read token at"
+      echo "[start] !!!   https://huggingface.co/settings/tokens and set HF_TOKEN in the template."
+    fi
+  done
+  # The text encoder and VAE only come along when there is a Klein model to use them.
+  if (( ${#klein[@]} )); then
+    FILES+=("${klein[@]}"
+            "Comfy-Org/flux2-klein-9B|qwen_3_8b_fp8mixed.safetensors|text_encoders"
+            "Comfy-Org/flux2-klein-9B|flux2-vae.safetensors|vae")
+  fi
+fi
 # Civitai downloads: "model-id|version regex|file regex|file exclude regex|save as|folder|already-there glob"
 # The file is saved under the name MiniMax H3 Vision's LoRA list shows.
 CIVITAI=()
@@ -268,6 +294,7 @@ PY
 
 if [[ "$SKIP_DOWNLOAD" != "true" ]]; then
   export HF_HUB_DISABLE_TELEMETRY=1
+  [[ -n "$HF_TOKEN" ]] && export HF_TOKEN   # hf download uses it for the gated Klein files
   if ! wait_for_network; then
     echo "[start] !!! No network after 2 minutes — skipping model download."
   else
