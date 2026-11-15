@@ -29,6 +29,11 @@ MiniMax H3 Vision has three tabs:
 
 **All recommended LoRAs:** the **MMH3 Realism V2** LoRA and the **MiniMax H3 Turbo** LoRA.
 
+**LoRA folders:** `models/loras` has a folder per model, and each tab of MiniMax H3 Vision lists its own:
+`MiniMax H3` (Video), `MOSS Image` (Image) and `Flux Klein` (coming). Put new LoRAs in the right one;
+loose files still show everywhere, as Not sorted. The built-in LoRAs go into `MiniMax H3`, and copies
+that earlier versions left loose in `loras` are moved there on start.
+
 **Also included:** the MiniMax H3 text encoder, video and audio VAEs, the MOSS-Image text encoder and VAE, and the moving live preview (taeh3).
 
 **Plus:** ComfyUI + ComfyUI-Manager, JupyterLab (no password) and PyTorch for CUDA 13.0.
