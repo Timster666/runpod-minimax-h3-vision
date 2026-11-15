@@ -19,7 +19,8 @@ LIVE_PREVIEW="${LIVE_PREVIEW:-true}"                    # taeh3 moving live prev
 ENABLE_MOSS_IMAGE="${ENABLE_MOSS_IMAGE:-true}"          # MOSS-Image SFT INT8 + its text encoder and VAE
 ENABLE_MOSS_TURBO="${ENABLE_MOSS_TURBO:-true}"          # MOSS-Image 8-step turbo (Spectrallic DMD, 5.4 GB); needs ENABLE_MOSS_IMAGE
 ENABLE_MOSS_BF16="${ENABLE_MOSS_BF16:-true}"            # MOSS-Image SFT full-size BF16 (10.2 GB); needs ENABLE_MOSS_IMAGE
-ENABLE_KLEIN_9B="${ENABLE_KLEIN_9B:-true}"              # FLUX.2 [klein] 9B distilled fp8 + its text encoder and VAE; needs HF_TOKEN
+ENABLE_KLEIN_9B_BF16="${ENABLE_KLEIN_9B_BF16:-true}"    # FLUX.2 [klein] 9B distilled, full BF16 + its text encoder and VAE; needs HF_TOKEN
+ENABLE_KLEIN_9B="${ENABLE_KLEIN_9B:-false}"             # FLUX.2 [klein] 9B distilled fp8 (smaller, faster), to compare; needs HF_TOKEN
 ENABLE_KLEIN_9B_BASE="${ENABLE_KLEIN_9B_BASE:-false}"   # FLUX.2 [klein] 9B Base fp8 (undistilled, slower); needs HF_TOKEN
 HF_TOKEN="${HF_TOKEN:-}"                                # Hugging Face token of an account that accepted the FLUX Non-Commercial License
 CIVITAI_TOKEN="${CIVITAI_TOKEN:-}"                      # only if Civitai asks for a login (Realism LoRA)
@@ -181,10 +182,12 @@ if is_on "$ENABLE_MOSS_IMAGE"; then
   is_on "$ENABLE_MOSS_BF16"  && FILES+=("Comfy-Org/MOSS-Image|moss_image_sft_bf16.safetensors|diffusion_models")
 fi
 # FLUX.2 [klein] 9B for the Klein tab. Black Forest Labs' model files are gated: the download needs HF_TOKEN
-# from a Hugging Face account that accepted the license on both repos (FLUX.2-klein-9b-fp8, FLUX.2-klein-base-9b-fp8).
-if is_on "$ENABLE_KLEIN_9B" || is_on "$ENABLE_KLEIN_9B_BASE"; then
+# from a Hugging Face account that accepted the license on each repo used (FLUX.2-klein-9B, FLUX.2-klein-9b-fp8,
+# FLUX.2-klein-base-9b-fp8).
+if is_on "$ENABLE_KLEIN_9B_BF16" || is_on "$ENABLE_KLEIN_9B" || is_on "$ENABLE_KLEIN_9B_BASE"; then
   klein=()
-  for pick in "ENABLE_KLEIN_9B|black-forest-labs/FLUX.2-klein-9b-fp8|flux-2-klein-9b-fp8.safetensors" \
+  for pick in "ENABLE_KLEIN_9B_BF16|black-forest-labs/FLUX.2-klein-9B|flux-2-klein-9b.safetensors" \
+              "ENABLE_KLEIN_9B|black-forest-labs/FLUX.2-klein-9b-fp8|flux-2-klein-9b-fp8.safetensors" \
               "ENABLE_KLEIN_9B_BASE|black-forest-labs/FLUX.2-klein-base-9b-fp8|flux-2-klein-base-9b-fp8.safetensors"; do
     IFS='|' read -r switch repo file <<< "$pick"
     is_on "${!switch}" || continue
