@@ -23,6 +23,9 @@ ENABLE_MOSS_EDIT="${ENABLE_MOSS_EDIT:-true}"            # MOSS-Image edit LoRA f
 ENABLE_KLEIN_9B_BF16="${ENABLE_KLEIN_9B_BF16:-true}"    # FLUX.2 [klein] 9B distilled, full BF16 + its text encoder and VAE; needs HF_TOKEN
 ENABLE_KLEIN_9B="${ENABLE_KLEIN_9B:-false}"             # FLUX.2 [klein] 9B distilled fp8 (smaller, faster), to compare; needs HF_TOKEN
 ENABLE_KLEIN_9B_BASE="${ENABLE_KLEIN_9B_BASE:-false}"   # FLUX.2 [klein] 9B Base fp8 (undistilled, slower); needs HF_TOKEN
+# Pruna tab (P-H3-Image): Pruna's LoRA on MiniMax H3's FL2VA model, its text encoder and VAE (about 9.5 GB, plus FL2VA)
+ENABLE_PH3_IMAGE="${ENABLE_PH3_IMAGE:-true}"
+ENABLE_PH3_UPSAMPLER="${ENABLE_PH3_UPSAMPLER:-true}"    # P-H3's BF16 prompt upsampler, for Enhance prompt (19.3 GB); needs ENABLE_PH3_IMAGE
 HF_TOKEN="${HF_TOKEN:-}"                                # Hugging Face token of an account that accepted the FLUX Non-Commercial License
 CIVITAI_TOKEN="${CIVITAI_TOKEN:-}"                      # only if Civitai asks for a login (Realism LoRA)
 
@@ -102,9 +105,9 @@ mkdir -p "$MODELS"/{diffusion_models/hyperflow,text_encoders,vae,vae_approx,lora
          "$COMFY/output" "$COMFY/input" "$COMFY/user" "$COMFY/custom_nodes"
 
 # LoRAs are sorted by model: MiniMax H3 Vision's Video tab lists loras/MiniMax H3, the Image tab
-# loras/MOSS Image, Klein loras/Flux Klein (loose files in loras show everywhere, as Not sorted).
+# loras/MOSS Image, Klein loras/Flux Klein, Pruna loras/P-H3 Image (loose files in loras show everywhere, as Not sorted).
 H3_LORAS="$MODELS/loras/MiniMax H3"
-mkdir -p "$H3_LORAS" "$MODELS/loras/MOSS Image" "$MODELS/loras/Flux Klein"
+mkdir -p "$H3_LORAS" "$MODELS/loras/MOSS Image" "$MODELS/loras/Flux Klein" "$MODELS/loras/P-H3 Image"
 # Built-in H3 LoRAs downloaded by earlier versions of this template lie loose in loras: move them in.
 # (MiniMax H3 Vision finds a LoRA by its file name, so saved settings and old clips keep working.)
 for f in "$MODELS"/loras/minimax_h3_turbo_*.safetensors "$MODELS"/loras/MMH3-Realism*.safetensors; do
@@ -207,6 +210,17 @@ if is_on "$ENABLE_KLEIN_9B_BF16" || is_on "$ENABLE_KLEIN_9B" || is_on "$ENABLE_K
             "Comfy-Org/flux2-klein-9B|qwen_3_8b_fp8mixed.safetensors|text_encoders"
             "Comfy-Org/flux2-klein-9B|flux2-vae.safetensors|vae")
   fi
+fi
+# P-H3-Image for the Pruna tab, the way ComfyUI's own P-H3-Image templates run it: Pruna's LoRA on MiniMax H3's
+# FL2VA model (already here with ENABLE_MINIMAX_H3), with P-H3's INT8 text encoder and VAE. The BF16 prompt
+# upsampler is for Enhance prompt.
+if is_on "$ENABLE_PH3_IMAGE"; then
+  PH3="PrunaAI/P-H3-Image-Comfy"
+  FILES+=("$PH3|p-h3-image_lora_bf16.safetensors|loras/P-H3 Image"
+          "$PH3|p-h3-image_text_encoder_int8_convrot.safetensors|text_encoders"
+          "$PH3|p-h3-image_vae_int8_convrot.safetensors|vae")
+  is_on "$ENABLE_PH3_UPSAMPLER" && FILES+=("$PH3|p-h3-image_prompt_upsampler_bf16.safetensors|text_encoders")
+  is_on "$ENABLE_MINIMAX_H3" || FILES+=("Comfy-Org/MiniMax-H3|minimax_h3_fl2va_pruned_int8_convrot.safetensors|diffusion_models")
 fi
 # Civitai downloads: "model-id|version regex|file regex|file exclude regex|save as|folder|already-there glob"
 # The file is saved under the name MiniMax H3 Vision's LoRA list shows.
