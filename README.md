@@ -58,6 +58,7 @@ Every model has an on/off switch. Click **Edit Template** when you deploy and se
 | `ENABLE_10EROS` | 10Eros Max beta 7 | 23 GB |
 | `ENABLE_MOSS_TURBO` | MOSS-Image 8-step turbo | 5.4 GB |
 | `ENABLE_MOSS_BF16` | MOSS-Image SFT full-size BF16 | 10.2 GB |
+| `ENABLE_MOSS_EDIT` | MOSS-Image edit LoRA, for the Image tab's **Edit** (into `loras/MOSS Image`) | 297 MB |
 | `ENABLE_MOSS_IMAGE` | MOSS-Image (the whole Image tab) | about 28 GB with the turbo and BF16 |
 | `ENABLE_KLEIN_9B_BF16` | FLUX.2 [klein] 9B Distilled, full BF16 (about 18 GB), with its text encoder (8.1 GB) and VAE. **On**, needs `HF_TOKEN` | the model, encoder and VAE |
 | `ENABLE_KLEIN_9B` | FLUX.2 [klein] 9B Distilled fp8 (about half the size, faster), to compare. **Off**, needs `HF_TOKEN` | the model |
