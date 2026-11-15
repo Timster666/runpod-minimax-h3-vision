@@ -19,6 +19,7 @@ LIVE_PREVIEW="${LIVE_PREVIEW:-true}"                    # taeh3 moving live prev
 ENABLE_MOSS_IMAGE="${ENABLE_MOSS_IMAGE:-true}"          # MOSS-Image SFT INT8 + its text encoder and VAE
 ENABLE_MOSS_TURBO="${ENABLE_MOSS_TURBO:-true}"          # MOSS-Image 8-step turbo (Spectrallic DMD, 5.4 GB); needs ENABLE_MOSS_IMAGE
 ENABLE_MOSS_BF16="${ENABLE_MOSS_BF16:-true}"            # MOSS-Image SFT full-size BF16 (10.2 GB); needs ENABLE_MOSS_IMAGE
+ENABLE_MOSS_EDIT="${ENABLE_MOSS_EDIT:-true}"            # MOSS-Image edit LoRA for the Image tab's Edit (297 MB); needs ENABLE_MOSS_IMAGE
 ENABLE_KLEIN_9B_BF16="${ENABLE_KLEIN_9B_BF16:-true}"    # FLUX.2 [klein] 9B distilled, full BF16 + its text encoder and VAE; needs HF_TOKEN
 ENABLE_KLEIN_9B="${ENABLE_KLEIN_9B:-false}"             # FLUX.2 [klein] 9B distilled fp8 (smaller, faster), to compare; needs HF_TOKEN
 ENABLE_KLEIN_9B_BASE="${ENABLE_KLEIN_9B_BASE:-false}"   # FLUX.2 [klein] 9B Base fp8 (undistilled, slower); needs HF_TOKEN
@@ -180,6 +181,7 @@ if is_on "$ENABLE_MOSS_IMAGE"; then
           "Comfy-Org/MOSS-Image|flux2-vae_small.safetensors|vae")
   is_on "$ENABLE_MOSS_TURBO" && FILES+=("Spectrallic/MOSS-Image-SFT-8step-DMD-int8-convrot|moss_image_sft_8stepdmd_int8_convrot.safetensors|diffusion_models")
   is_on "$ENABLE_MOSS_BF16"  && FILES+=("Comfy-Org/MOSS-Image|moss_image_sft_bf16.safetensors|diffusion_models")
+  is_on "$ENABLE_MOSS_EDIT"  && FILES+=("Comfy-Org/MOSS-Image|moss_image_edit_lora_rank_64_bf16.safetensors|loras/MOSS Image")
 fi
 # FLUX.2 [klein] 9B for the Klein tab. Black Forest Labs' model files are gated: the download needs HF_TOKEN
 # from a Hugging Face account that accepted the license on each repo used (FLUX.2-klein-9B, FLUX.2-klein-9b-fp8,
