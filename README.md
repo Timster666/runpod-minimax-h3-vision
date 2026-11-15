@@ -63,6 +63,8 @@ Every model has an on/off switch. Click **Edit Template** when you deploy and se
 | `ENABLE_KLEIN_9B_BF16` | FLUX.2 [klein] 9B Distilled, full BF16 (about 18 GB), with its text encoder (8.1 GB) and VAE. **On**, needs `HF_TOKEN` | the model, encoder and VAE |
 | `ENABLE_KLEIN_9B` | FLUX.2 [klein] 9B Distilled fp8 (about half the size, faster), to compare. **Off**, needs `HF_TOKEN` | the model |
 | `ENABLE_KLEIN_9B_BASE` | FLUX.2 [klein] 9B Base fp8 (undistilled, slower). **Off**, needs `HF_TOKEN` | the model |
+| `ENABLE_PH3_IMAGE` | P-H3-Image for the **Pruna** tab: Pruna's LoRA (1.8 GB, into `loras/P-H3 Image`) on MiniMax H3's FL2VA model, with its INT8 text encoder (4.8 GB) and VAE (2.9 GB). Downloads FL2VA (19.5 GB) too when `ENABLE_MINIMAX_H3` is off | about 9.5 GB |
+| `ENABLE_PH3_UPSAMPLER` | P-H3-Image's BF16 prompt upsampler, for the Pruna tab's **Enhance prompt** | 19.3 GB |
 
 With the first three off, a **100 GB** volume is enough.
 
