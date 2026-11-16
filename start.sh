@@ -23,7 +23,7 @@ ENABLE_MOSS_EDIT="${ENABLE_MOSS_EDIT:-true}"            # MOSS-Image edit LoRA f
 ENABLE_KLEIN_9B_BF16="${ENABLE_KLEIN_9B_BF16:-true}"    # FLUX.2 [klein] 9B distilled, full BF16 + its text encoder and VAE; needs HF_TOKEN
 ENABLE_KLEIN_9B="${ENABLE_KLEIN_9B:-false}"             # FLUX.2 [klein] 9B distilled fp8 (smaller, faster), to compare; needs HF_TOKEN
 ENABLE_KLEIN_9B_BASE="${ENABLE_KLEIN_9B_BASE:-false}"
-ENABLE_BFS_KLEIN="${ENABLE_BFS_KLEIN:-true}"            # BFS head-swap LoRA for Klein 9B, for the Klein tab's Face swap (rank 64)   # FLUX.2 [klein] 9B Base fp8 (undistilled, slower); needs HF_TOKEN
+ENABLE_BFS_KLEIN="${ENABLE_BFS_KLEIN:-true}"            # BFS head-swap LoRAs for Klein 9B (rank 128 and 64), for the Klein tab's Face swap   # FLUX.2 [klein] 9B Base fp8 (undistilled, slower); needs HF_TOKEN
 # Pruna tab (P-H3-Image): Pruna's LoRA on MiniMax H3's FL2VA model, its text encoder and VAE (about 9.5 GB, plus FL2VA)
 ENABLE_PH3_IMAGE="${ENABLE_PH3_IMAGE:-true}"
 ENABLE_PH3_UPSAMPLER="${ENABLE_PH3_UPSAMPLER:-true}"    # P-H3's BF16 prompt upsampler, for Enhance prompt (19.3 GB); needs ENABLE_PH3_IMAGE
@@ -211,7 +211,9 @@ if is_on "$ENABLE_KLEIN_9B_BF16" || is_on "$ENABLE_KLEIN_9B" || is_on "$ENABLE_K
             "Comfy-Org/flux2-klein-9B|qwen_3_8b_fp8mixed.safetensors|text_encoders"
             "Comfy-Org/flux2-klein-9B|flux2-vae.safetensors|vae")
     # Face swap: Alissonerdx's BFS head-swap LoRA for Klein 9B (the rank 64 one Comfy's face swap workflow uses).
-    is_on "$ENABLE_BFS_KLEIN" && FILES+=("Alissonerdx/BFS-Best-Face-Swap|bfs_head_v1_flux-klein_9b_step3750_rank64.safetensors|loras/Flux Klein")
+    # Both BFS head-swap LoRAs for Klein 9B: rank 128 (the faceswap detailer workflow's) and rank 64 (Comfy's).
+    is_on "$ENABLE_BFS_KLEIN" && FILES+=("Alissonerdx/BFS-Best-Face-Swap|bfs_head_v1_flux-klein_9b_step3500_rank128.safetensors|loras/Flux Klein"
+                                        "Alissonerdx/BFS-Best-Face-Swap|bfs_head_v1_flux-klein_9b_step3750_rank64.safetensors|loras/Flux Klein")
   fi
 fi
 # P-H3-Image for the Pruna tab, the way ComfyUI's own P-H3-Image templates run it: Pruna's LoRA on MiniMax H3's
