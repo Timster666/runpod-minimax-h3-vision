@@ -51,6 +51,10 @@ Later starts are much faster, because the models are already there. Each start a
 
 ## Save space or money
 
+You can also leave models off and download them later from inside Vision: **gear menu → Models** lists every
+model group with its size and a **Download** button, and downloads run in the background on the pod. Both use
+the same list (Vision's `model_catalog.json`), so a switch and the Models page always fetch the same files.
+
 Every model has an on/off switch. Click **Edit Template** when you deploy and set the ones you don't need to `false` in the **Environment Variables**:
 
 | Switch | Model | Saves |

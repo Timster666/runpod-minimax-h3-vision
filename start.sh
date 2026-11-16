@@ -157,76 +157,42 @@ for lora in /opt/default_loras/*.safetensors; do
 done
 
 # ---- Build the file list ----------------------------------------------------
-# Each entry is "huggingface-repo|file-name|folder under models/". The file is
-# found by name anywhere in the repo (some sit in subfolders there).
-FILES=(
-  "Comfy-Org/MiniMax-H3|qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors|text_encoders"
-  "Comfy-Org/MiniMax-H3|minimax_h3_video_vae_fp16.safetensors|vae"
-  "Comfy-Org/MiniMax-H3|minimax_h3_audio_vae_fp32.safetensors|vae"
+# The files come from MiniMax H3 Vision's model_catalog.json (the same list as its Models page, gear menu):
+# each group whose switch is on. Each entry is "huggingface-repo|file-name|folder under models/"; the file is
+# found by name anywhere in the repo (some sit in subfolders there). Gated groups (Klein) need HF_TOKEN.
+CATALOG="$VISION/model_catalog.json"
+[[ -f "$CATALOG" ]] || CATALOG=/opt/ComfyUI/custom_nodes/comfyui-minimax-h3-vision/model_catalog.json
+export HF_TOKEN ENABLE_HYPERFLOW ENABLE_MINIMAX_H3 ENABLE_SINGULARITY ENABLE_10EROS LIVE_PREVIEW \
+       ENABLE_MOSS_IMAGE ENABLE_MOSS_TURBO ENABLE_MOSS_BF16 ENABLE_MOSS_EDIT \
+       ENABLE_KLEIN_9B_BF16 ENABLE_KLEIN_9B ENABLE_KLEIN_9B_BASE ENABLE_BFS_KLEIN ENABLE_PH3_IMAGE ENABLE_PH3_UPSAMPLER
+FILES=()
+mapfile -t FILES < <(MODELS="$MODELS" python3 - "$CATALOG" <<'PY'
+import json, os, sys
+on = lambda name: os.environ.get(name, "false").lower() in ("1", "true", "yes", "on")
+groups = json.load(open(sys.argv[1]))["groups"]
+seen, taken = set(), set()   # taken: the switches of the groups on the list
+for g in groups:
+    if g["env"] and not on(g["env"]):
+        continue
+    # "with": only alongside one of those groups (the Klein face swap LoRAs with a Klein model).
+    if g.get("with") and not any(e in taken for e in g["with"]):
+        continue
+    files = g["files"]
+    have = lambda f: os.path.isfile(os.path.join(os.environ["MODELS"], f[2], f[1])) and os.path.getsize(os.path.join(os.environ["MODELS"], f[2], f[1])) > 0
+    if g.get("gated") and not os.environ.get("HF_TOKEN"):
+        if not all(have(f) for f in files):
+            print("[start] !!! %s is on, but HF_TOKEN isn't set: skipping %s." % (g["env"], g["name"]), file=sys.stderr)
+            print("[start] !!!   Accept the license on Hugging Face, make a read token at https://huggingface.co/settings/tokens", file=sys.stderr)
+            print("[start] !!!   and set HF_TOKEN in the template (or download it later in Vision: gear menu > Models).", file=sys.stderr)
+            continue
+    taken.add(g["env"])
+    for repo, name, folder in files:
+        if (folder, name) not in seen:
+            seen.add((folder, name))
+            print("%s|%s|%s" % (repo, name, folder))
+PY
 )
-# HyperFlow H3 Flash: the INT8 files (MiniMax H3 Vision doesn't load HyperFlow's GGUF files)
-if is_on "$ENABLE_HYPERFLOW"; then
-  HF_REPO="VideoRebirthAI/hyperflow-h3-flash"
-  FILES+=("$HF_REPO|minimax_h3_ref2va_hyperflow_flash_14b-int8_convrot.safetensors|diffusion_models/hyperflow"
-          "$HF_REPO|minimax_h3_fl2va_hyperflow_flash_14b-int8_convrot.safetensors|diffusion_models/hyperflow")
-fi
-if is_on "$ENABLE_MINIMAX_H3"; then
-  FILES+=("Comfy-Org/MiniMax-H3|minimax_h3_ref2va_pruned_int8_convrot.safetensors|diffusion_models"
-          "Comfy-Org/MiniMax-H3|minimax_h3_fl2va_pruned_int8_convrot.safetensors|diffusion_models"
-          "larryvrh/MiniMax-H3-Turbo-Lora|minimax_h3_turbo_v4_step600_ema.safetensors|loras/MiniMax H3")
-fi
-is_on "$ENABLE_SINGULARITY" && FILES+=("WarmBloodAban/Minimax-h3_Singularity|Minimax-h3_Singularity_ref2va_v2_pruned_int8.safetensors|diffusion_models")
-is_on "$ENABLE_10EROS"      && FILES+=("TenStrip/10Eros-Max|10Eros_Max_h3_8stepTURBO_beta7_fix1-native_int8_protected_edges_HQ.safetensors|diffusion_models")
-is_on "$LIVE_PREVIEW"    && FILES+=("OzzyGT/taeh3|taeh3.safetensors|vae_approx")
-# MOSS-Image for the Image tab: the INT8 model, its text encoder and VAE, the 8-step turbo and the full-size BF16
-if is_on "$ENABLE_MOSS_IMAGE"; then
-  FILES+=("Comfy-Org/MOSS-Image|moss_image_sft_int8_convrot.safetensors|diffusion_models"
-          "Comfy-Org/MOSS-Image|qwen3.5_9b_w4a8_gptq.safetensors|text_encoders"
-          "Comfy-Org/MOSS-Image|flux2-vae_small.safetensors|vae")
-  is_on "$ENABLE_MOSS_TURBO" && FILES+=("Spectrallic/MOSS-Image-SFT-8step-DMD-int8-convrot|moss_image_sft_8stepdmd_int8_convrot.safetensors|diffusion_models")
-  is_on "$ENABLE_MOSS_BF16"  && FILES+=("Comfy-Org/MOSS-Image|moss_image_sft_bf16.safetensors|diffusion_models")
-  is_on "$ENABLE_MOSS_EDIT"  && FILES+=("Comfy-Org/MOSS-Image|moss_image_edit_lora_rank_64_bf16.safetensors|loras/MOSS Image")
-fi
-# FLUX.2 [klein] 9B for the Klein tab. Black Forest Labs' model files are gated: the download needs HF_TOKEN
-# from a Hugging Face account that accepted the license on each repo used (FLUX.2-klein-9B, FLUX.2-klein-9b-fp8,
-# FLUX.2-klein-base-9b-fp8).
-if is_on "$ENABLE_KLEIN_9B_BF16" || is_on "$ENABLE_KLEIN_9B" || is_on "$ENABLE_KLEIN_9B_BASE"; then
-  klein=()
-  for pick in "ENABLE_KLEIN_9B_BF16|black-forest-labs/FLUX.2-klein-9B|flux-2-klein-9b.safetensors" \
-              "ENABLE_KLEIN_9B|black-forest-labs/FLUX.2-klein-9b-fp8|flux-2-klein-9b-fp8.safetensors" \
-              "ENABLE_KLEIN_9B_BASE|black-forest-labs/FLUX.2-klein-base-9b-fp8|flux-2-klein-base-9b-fp8.safetensors"; do
-    IFS='|' read -r switch repo file <<< "$pick"
-    is_on "${!switch}" || continue
-    if [[ -n "$HF_TOKEN" || -s "$MODELS/diffusion_models/$file" ]]; then
-      klein+=("$repo|$file|diffusion_models")
-    else
-      echo "[start] !!! $switch is on, but HF_TOKEN isn't set: skipping $file."
-      echo "[start] !!!   Accept the license at https://huggingface.co/$repo, make a read token at"
-      echo "[start] !!!   https://huggingface.co/settings/tokens and set HF_TOKEN in the template."
-    fi
-  done
-  # The text encoder and VAE only come along when there is a Klein model to use them.
-  if (( ${#klein[@]} )); then
-    FILES+=("${klein[@]}"
-            "Comfy-Org/flux2-klein-9B|qwen_3_8b_fp8mixed.safetensors|text_encoders"
-            "Comfy-Org/flux2-klein-9B|flux2-vae.safetensors|vae")
-    # Face swap: Alissonerdx's BFS head-swap LoRA for Klein 9B (the rank 64 one Comfy's face swap workflow uses).
-    # Both BFS head-swap LoRAs for Klein 9B: rank 128 (the faceswap detailer workflow's) and rank 64 (Comfy's).
-    is_on "$ENABLE_BFS_KLEIN" && FILES+=("Alissonerdx/BFS-Best-Face-Swap|bfs_head_v1_flux-klein_9b_step3500_rank128.safetensors|loras/Flux Klein"
-                                        "Alissonerdx/BFS-Best-Face-Swap|bfs_head_v1_flux-klein_9b_step3750_rank64.safetensors|loras/Flux Klein")
-  fi
-fi
-# P-H3-Image for the Pruna tab, the way ComfyUI's own P-H3-Image templates run it: Pruna's LoRA on MiniMax H3's
-# FL2VA model (already here with ENABLE_MINIMAX_H3), with P-H3's INT8 text encoder and VAE. The BF16 prompt
-# upsampler is for Enhance prompt.
-if is_on "$ENABLE_PH3_IMAGE"; then
-  PH3="PrunaAI/P-H3-Image-Comfy"
-  FILES+=("$PH3|p-h3-image_lora_bf16.safetensors|loras/P-H3 Image"
-          "$PH3|p-h3-image_text_encoder_int8_convrot.safetensors|text_encoders"
-          "$PH3|p-h3-image_vae_int8_convrot.safetensors|vae")
-  is_on "$ENABLE_PH3_UPSAMPLER" && FILES+=("$PH3|p-h3-image_prompt_upsampler_bf16.safetensors|text_encoders")
-  is_on "$ENABLE_MINIMAX_H3" || FILES+=("Comfy-Org/MiniMax-H3|minimax_h3_fl2va_pruned_int8_convrot.safetensors|diffusion_models")
-fi
+echo "[start] ${#FILES[@]} model file(s) on the list (from $(basename "$CATALOG"))."
 # Civitai downloads: "model-id|version regex|file regex|file exclude regex|save as|folder|already-there glob"
 # The file is saved under the name MiniMax H3 Vision's LoRA list shows.
 CIVITAI=()
