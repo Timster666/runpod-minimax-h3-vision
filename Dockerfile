@@ -32,6 +32,10 @@ RUN git clone https://github.com/comfyanonymous/ComfyUI.git /opt/ComfyUI \
 RUN git clone https://github.com/Comfy-Org/ComfyUI-Manager.git /opt/ComfyUI/custom_nodes/ComfyUI-Manager \
     && pip install -r /opt/ComfyUI/custom_nodes/ComfyUI-Manager/requirements.txt
 
+# LanPaint (https://github.com/scraed/LanPaint): the inpainting sampler Vision's Klein face swap can use
+# with Only the head. No Python packages of its own.
+RUN git clone --depth 1 https://github.com/scraed/LanPaint.git /opt/ComfyUI/custom_nodes/LanPaint
+
 # MiniMax H3 Vision custom node (https://github.com/Timster666/comfyui-minimax-h3-vision).
 # It needs no Python packages beyond ComfyUI's own (it uses ComfyUI's PyAV for video).
 # VISION_REF: a branch, tag or commit; main is the newest. start.sh can also update it on boot.
