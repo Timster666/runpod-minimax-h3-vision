@@ -82,7 +82,7 @@ With the first three off, a **100 GB** volume is enough.
 | `UPDATE_COMFYUI` | `false` | `true` = update ComfyUI on start |
 | `JUPYTER_PASSWORD` | — | Set to require a Jupyter login |
 | `HF_TOKEN` | — | Needed for Klein: a Hugging Face read token from an account that accepted the FLUX Non-Commercial License on [FLUX.2-klein-9B](https://huggingface.co/black-forest-labs/FLUX.2-klein-9B) (and [FLUX.2-klein-9b-fp8](https://huggingface.co/black-forest-labs/FLUX.2-klein-9b-fp8) or [FLUX.2-klein-base-9b-fp8](https://huggingface.co/black-forest-labs/FLUX.2-klein-base-9b-fp8) if you switch those on). Without it, Klein is skipped with a warning in the log |
-| `CIVITAI_TOKEN` | — | Only if Civitai asks for a login for the Realism LoRA |
+| `CIVITAI_TOKEN` | — | Only if Civitai asks for a login: for the Realism LoRA, or LoRAs added from Civitai links in Vision's LoRA window |
 
 ## Where things are saved
 Everything is in `/workspace/ComfyUI`: `models`, `custom_nodes`, `output` and more. Your videos, images, edits and exports are in `output/minimax_flow`. Custom nodes you install stay between restarts.
