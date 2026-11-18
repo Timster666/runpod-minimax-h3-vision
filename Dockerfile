@@ -49,6 +49,13 @@ RUN pip freeze | grep -iE "^(torch|torchvision|torchaudio)==" > /opt/torch-const
 # Hugging Face CLI with Xet support (Xet-backed repos = fast downloads)
 RUN pip install "huggingface_hub[hf_xet]"
 
+# rclone (https://rclone.org): Vision saves edit projects to, and opens them from, a Google Drive folder with it
+# (GDRIVE_FOLDER and GDRIVE_TOKEN).
+RUN curl -fsSL https://downloads.rclone.org/rclone-current-linux-amd64.zip -o /tmp/rclone.zip \
+    && python3 -m zipfile -e /tmp/rclone.zip /tmp/rclone \
+    && install -m 755 /tmp/rclone/rclone-*-linux-amd64/rclone /usr/local/bin/rclone \
+    && rm -rf /tmp/rclone /tmp/rclone.zip && rclone version
+
 # JupyterLab (port 8888) for file browsing, terminals and notebooks
 RUN pip install jupyterlab
 

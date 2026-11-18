@@ -29,6 +29,8 @@ ENABLE_PH3_IMAGE="${ENABLE_PH3_IMAGE:-true}"
 ENABLE_PH3_UPSAMPLER="${ENABLE_PH3_UPSAMPLER:-true}"    # P-H3's BF16 prompt upsampler, for Enhance prompt (19.3 GB); needs ENABLE_PH3_IMAGE
 HF_TOKEN="${HF_TOKEN:-}"                                # Hugging Face token of an account that accepted the FLUX Non-Commercial License
 CIVITAI_TOKEN="${CIVITAI_TOKEN:-}"                      # only if Civitai asks for a login (Realism LoRA)
+GDRIVE_FOLDER="${GDRIVE_FOLDER:-}"                      # a Google Drive folder's link: Vision saves and opens project .zips there
+GDRIVE_TOKEN="${GDRIVE_TOKEN:-}"                        # the sign-in rclone authorize "drive" prints (best as a RunPod secret)
 
 # ---- Other settings ---------------------------------------------------------
 SKIP_DOWNLOAD="${SKIP_DOWNLOAD:-false}"
@@ -325,6 +327,12 @@ fi
 
 # ---- Launch ComfyUI ---------------------------------------------------------
 cd "$COMFY"
+if [[ -n "$GDRIVE_FOLDER" && -n "$GDRIVE_TOKEN" ]]; then
+  echo "[start] Google Drive: on (Vision's gear menu > Google Drive, and Edit > Project)"
+  export GDRIVE_FOLDER GDRIVE_TOKEN
+elif [[ -n "$GDRIVE_FOLDER$GDRIVE_TOKEN" ]]; then
+  echo "[start] !!! Google Drive needs both GDRIVE_FOLDER and GDRIVE_TOKEN." >&2
+fi
 echo "[start] Starting ComfyUI on port 8188 from $COMFY"
 # --enable-cors-header: lets requests through RunPod's proxy (otherwise ComfyUI answers 403)
 # shellcheck disable=SC2086

@@ -83,6 +83,25 @@ With the first three off, a **100 GB** volume is enough.
 | `JUPYTER_PASSWORD` | — | Set to require a Jupyter login |
 | `HF_TOKEN` | — | Needed for Klein: a Hugging Face read token from an account that accepted the FLUX Non-Commercial License on [FLUX.2-klein-9B](https://huggingface.co/black-forest-labs/FLUX.2-klein-9B) (and [FLUX.2-klein-9b-fp8](https://huggingface.co/black-forest-labs/FLUX.2-klein-9b-fp8) or [FLUX.2-klein-base-9b-fp8](https://huggingface.co/black-forest-labs/FLUX.2-klein-base-9b-fp8) if you switch those on). Without it, Klein is skipped with a warning in the log |
 | `CIVITAI_TOKEN` | — | Only if Civitai asks for a login: for the Realism LoRA, or LoRAs added from Civitai links in Vision's LoRA window |
+| `GDRIVE_FOLDER` | — | A Google Drive folder's link, for saving and opening projects there (see below) |
+| `GDRIVE_TOKEN` | — | The Google sign-in for that folder, from `rclone authorize "drive"` (see below) |
+
+## Google Drive
+Vision can save edit projects and video `.zip`s to a Google Drive folder and open them from there, so your work
+outlives the pod. The pod copies straight to and from Drive, so big projects are quick and nothing goes through your
+computer. Set it up once:
+
+1. Make a folder in Google Drive, open it and copy its address (`https://drive.google.com/drive/folders/…`).
+2. On your Mac, install [rclone](https://rclone.org/install/) (`brew install rclone`) and run
+   `rclone authorize "drive"`. Your browser opens Google's sign-in: pick the account and allow access. Back in the
+   terminal, rclone prints a line in `{ }` that starts with `{"access_token":`. Copy that line.
+3. In RunPod, under **Secrets**, make a secret called `gdrive_token` with that line as its value. In the template,
+   set `GDRIVE_TOKEN` to `{{ RUNPOD_SECRET_gdrive_token }}` and `GDRIVE_FOLDER` to the folder's address.
+
+Then use **Edit › Project › Save project to Google Drive** (or a video's **⋯ › Save .zip to Google Drive**), and
+**Open from Google Drive** in the same menu or the gear menu. The sign-in lasts until you remove it in your Google
+account's security settings (Third-party access), and it can reach your whole Drive, so keep it a secret. If Google
+ever turns it down, run `rclone authorize "drive"` again and update the secret.
 
 ## Where things are saved
 Everything is in `/workspace/ComfyUI`: `models`, `custom_nodes`, `output` and more. Your videos, images, edits and exports are in `output/minimax_flow`. Custom nodes you install stay between restarts.
