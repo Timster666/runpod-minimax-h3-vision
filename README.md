@@ -72,6 +72,8 @@ Every model has an on/off switch. Click **Edit Template** when you deploy and se
 | `ENABLE_BFS_KLEIN` | BFS head-swap LoRAs for Klein 9B (Alissonerdx/BFS-Best-Face-Swap, rank 128 and rank 64) for the Klein tab's **Face swap**, into `loras/Flux Klein`. Only with a Klein model | the LoRAs |
 | `ENABLE_PH3_IMAGE` | P-H3-Image for the **Pruna** tab: Pruna's LoRA (1.8 GB, into `loras/P-H3 Image`) on MiniMax H3's FL2VA model, with its INT8 text encoder (4.8 GB) and VAE (2.9 GB). Downloads FL2VA (19.5 GB) too when `ENABLE_MINIMAX_H3` is off | about 9.5 GB |
 | `ENABLE_PH3_UPSAMPLER` | P-H3-Image's BF16 prompt upsampler, for the Pruna tab's **Enhance prompt** | 19.3 GB |
+| `ENABLE_H3_IMAGE` | MiniMax's own **H3-Image** (INT8) and its VAE, as a model in the Pruna tab (4 to 16 MP, 6 steps). Uses MiniMax H3's text encoder. Needs ComfyUI 0.45 or newer: on an older volume, set `UPDATE_COMFYUI=true` once. Off by default | 22 GB |
+| `ENABLE_H3_IMAGE_W4A8` | The smaller W4A8 H3-Image and its VAE, for cards with less memory. Off by default | 14 GB |
 
 With the first three off, a **100 GB** volume is enough.
 

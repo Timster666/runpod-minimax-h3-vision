@@ -27,6 +27,8 @@ ENABLE_BFS_KLEIN="${ENABLE_BFS_KLEIN:-true}"            # BFS head-swap LoRAs fo
 # Pruna tab (P-H3-Image): Pruna's LoRA on MiniMax H3's FL2VA model, its text encoder and VAE (about 9.5 GB, plus FL2VA)
 ENABLE_PH3_IMAGE="${ENABLE_PH3_IMAGE:-true}"
 ENABLE_PH3_UPSAMPLER="${ENABLE_PH3_UPSAMPLER:-true}"    # P-H3's BF16 prompt upsampler, for Enhance prompt (19.3 GB); needs ENABLE_PH3_IMAGE
+ENABLE_H3_IMAGE="${ENABLE_H3_IMAGE:-false}"             # MiniMax H3-Image INT8 + its VAE, in the Pruna tab (22 GB); needs ComfyUI 0.45+
+ENABLE_H3_IMAGE_W4A8="${ENABLE_H3_IMAGE_W4A8:-false}"   # the smaller W4A8 H3-Image + its VAE (14 GB)
 HF_TOKEN="${HF_TOKEN:-}"                                # Hugging Face token of an account that accepted the FLUX Non-Commercial License
 CIVITAI_TOKEN="${CIVITAI_TOKEN:-}"                      # only if Civitai asks for a login (Realism LoRA)
 GDRIVE_FOLDER="${GDRIVE_FOLDER:-}"                      # a Google Drive folder's link: Vision saves and opens project .zips there
@@ -166,7 +168,8 @@ CATALOG="$VISION/model_catalog.json"
 [[ -f "$CATALOG" ]] || CATALOG=/opt/ComfyUI/custom_nodes/comfyui-minimax-h3-vision/model_catalog.json
 export HF_TOKEN ENABLE_HYPERFLOW ENABLE_MINIMAX_H3 ENABLE_SINGULARITY ENABLE_10EROS LIVE_PREVIEW \
        ENABLE_MOSS_IMAGE ENABLE_MOSS_TURBO ENABLE_MOSS_BF16 ENABLE_MOSS_EDIT \
-       ENABLE_KLEIN_9B_BF16 ENABLE_KLEIN_9B ENABLE_KLEIN_9B_BASE ENABLE_BFS_KLEIN ENABLE_PH3_IMAGE ENABLE_PH3_UPSAMPLER
+       ENABLE_KLEIN_9B_BF16 ENABLE_KLEIN_9B ENABLE_KLEIN_9B_BASE ENABLE_BFS_KLEIN ENABLE_PH3_IMAGE ENABLE_PH3_UPSAMPLER \
+       ENABLE_H3_IMAGE ENABLE_H3_IMAGE_W4A8
 FILES=()
 mapfile -t FILES < <(MODELS="$MODELS" python3 - "$CATALOG" <<'PY'
 import json, os, sys
