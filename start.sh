@@ -37,6 +37,7 @@ GDRIVE_TOKEN="${GDRIVE_TOKEN:-}"                        # the sign-in rclone aut
 # ---- Other settings ---------------------------------------------------------
 SKIP_DOWNLOAD="${SKIP_DOWNLOAD:-false}"
 UPDATE_COMFYUI="${UPDATE_COMFYUI:-false}"        # true = update ComfyUI + Manager on boot
+ENABLE_REFMOD="${ENABLE_REFMOD:-false}"         # true = install Luisa's ComfyUI-MiniMaxH3Mod (RefMods in Vision's Video tab), kept up to date
 UPDATE_VISION="${UPDATE_VISION:-true}"           # true = get the newest MiniMax H3 Vision on boot (git pull)
 INSTALL_NODE_REQS="${INSTALL_NODE_REQS:-true}"   # reinstall custom nodes' Python packages on boot
 COMFY_ARGS="${COMFY_ARGS:-}"                     # extra flags, e.g. --lowvram
@@ -91,6 +92,19 @@ done
 if [[ "$UPDATE_VISION" == "true" && -d "$VISION/.git" ]]; then
   echo "[start] Updating MiniMax H3 Vision ..."
   git -C "$VISION" pull --ff-only || echo "[start] MiniMax H3 Vision update failed (continuing with the copy on the volume)"
+fi
+
+# RefMods (optional): Luisa's ComfyUI-MiniMaxH3Mod node pack. It's under construction, so it's updated on every boot.
+REFMOD="$COMFY/custom_nodes/ComfyUI-MiniMaxH3Mod"
+if [[ "$ENABLE_REFMOD" == "true" ]]; then
+  if [[ -d "$REFMOD/.git" ]]; then
+    echo "[start] Updating ComfyUI-MiniMaxH3Mod (RefMods) ..."
+    git -C "$REFMOD" pull --ff-only || echo "[start] ComfyUI-MiniMaxH3Mod update failed (continuing with the copy on the volume)"
+  else
+    echo "[start] Installing ComfyUI-MiniMaxH3Mod (RefMods) ..."
+    git clone --depth 1 https://github.com/Luisacaotica/ComfyUI-MiniMaxH3Mod.git "$REFMOD" \
+      || echo "[start] !!! Couldn't install ComfyUI-MiniMaxH3Mod" >&2
+  fi
 fi
 
 # JupyterLab — started before the model download so it's usable right away.
