@@ -39,6 +39,7 @@ GDRIVE_TOKEN="${GDRIVE_TOKEN:-}"                        # the sign-in rclone aut
 SKIP_DOWNLOAD="${SKIP_DOWNLOAD:-false}"
 UPDATE_COMFYUI="${UPDATE_COMFYUI:-false}"        # true = update ComfyUI + Manager on boot
 ENABLE_REFMOD="${ENABLE_REFMOD:-false}"         # true = install Luisa's ComfyUI-MiniMaxH3Mod (RefMods in Vision's Video tab), kept up to date
+ENABLE_FACEREFINE="${ENABLE_FACEREFINE:-true}"  # true = install ComfyUI-H3-FaceRefine + its audio lock and face detector (Vision's Refine faces)
 UPDATE_VISION="${UPDATE_VISION:-true}"           # true = get the newest MiniMax H3 Vision on boot (git pull)
 INSTALL_NODE_REQS="${INSTALL_NODE_REQS:-true}"   # reinstall custom nodes' Python packages on boot
 COMFY_ARGS="${COMFY_ARGS:-}"                     # extra flags, e.g. --lowvram
@@ -105,6 +106,32 @@ if [[ "$ENABLE_REFMOD" == "true" ]]; then
     echo "[start] Installing ComfyUI-MiniMaxH3Mod (RefMods) ..."
     git clone --depth 1 https://github.com/Luisacaotica/ComfyUI-MiniMaxH3Mod.git "$REFMOD" \
       || echo "[start] !!! Couldn't install ComfyUI-MiniMaxH3Mod" >&2
+  fi
+fi
+
+# Refine faces (optional): Carasibana's ComfyUI-H3-FaceRefine, updated on every boot, and the audio lock its lipsync
+# needs (MiniMaxH3NativeAudioLock, which ships inside Shrek3OnVH5's workflow repository). The face detector comes
+# with the models below (model_catalog.json, group face-refine).
+FACEREFINE="$COMFY/custom_nodes/ComfyUI-H3-FaceRefine"
+AUDIOLOCK="$COMFY/custom_nodes/ComfyUI-H3-NativeAudioLock"
+if is_on "$ENABLE_FACEREFINE"; then
+  if [[ -d "$FACEREFINE/.git" ]]; then
+    echo "[start] Updating ComfyUI-H3-FaceRefine ..."
+    git -C "$FACEREFINE" pull --ff-only || echo "[start] ComfyUI-H3-FaceRefine update failed (continuing with the copy on the volume)"
+  else
+    echo "[start] Installing ComfyUI-H3-FaceRefine (Refine faces) ..."
+    git clone --depth 1 https://github.com/Carasibana/ComfyUI-H3-FaceRefine.git "$FACEREFINE" \
+      || echo "[start] !!! Couldn't install ComfyUI-H3-FaceRefine" >&2
+  fi
+  if [[ ! -f "$AUDIOLOCK/__init__.py" ]]; then
+    echo "[start] Installing ComfyUI-H3-NativeAudioLock ..."
+    rm -rf /tmp/h3-audiolock
+    if git clone --depth 1 https://github.com/Shrek3OnVH5/MiniMax-H3-NativeAudio-MusicVideo-Workflow.git /tmp/h3-audiolock; then
+      cp -r /tmp/h3-audiolock/custom_nodes/ComfyUI-H3-NativeAudioLock "$AUDIOLOCK"
+    else
+      echo "[start] !!! Couldn't install ComfyUI-H3-NativeAudioLock" >&2
+    fi
+    rm -rf /tmp/h3-audiolock
   fi
 fi
 
@@ -184,7 +211,7 @@ CATALOG="$VISION/model_catalog.json"
 export HF_TOKEN ENABLE_HYPERFLOW ENABLE_MINIMAX_H3 ENABLE_SINGULARITY ENABLE_10EROS ENABLE_PRISM LIVE_PREVIEW \
        ENABLE_MOSS_IMAGE ENABLE_MOSS_TURBO ENABLE_MOSS_BF16 ENABLE_MOSS_EDIT \
        ENABLE_KLEIN_9B_BF16 ENABLE_KLEIN_9B ENABLE_KLEIN_9B_BASE ENABLE_BFS_KLEIN ENABLE_PH3_IMAGE ENABLE_PH3_UPSAMPLER \
-       ENABLE_H3_IMAGE ENABLE_H3_IMAGE_W4A8
+       ENABLE_H3_IMAGE ENABLE_H3_IMAGE_W4A8 ENABLE_FACEREFINE
 FILES=()
 mapfile -t FILES < <(MODELS="$MODELS" python3 - "$CATALOG" <<'PY'
 import json, os, sys

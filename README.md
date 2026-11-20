@@ -88,6 +88,7 @@ With the first three off, a **100 GB** volume is enough.
 | `HF_TOKEN` | — | Needed for Klein: a Hugging Face read token from an account that accepted the FLUX Non-Commercial License on [FLUX.2-klein-9B](https://huggingface.co/black-forest-labs/FLUX.2-klein-9B) (and [FLUX.2-klein-9b-fp8](https://huggingface.co/black-forest-labs/FLUX.2-klein-9b-fp8) or [FLUX.2-klein-base-9b-fp8](https://huggingface.co/black-forest-labs/FLUX.2-klein-base-9b-fp8) if you switch those on). Without it, Klein is skipped with a warning in the log |
 | `CIVITAI_TOKEN` | — | Only if Civitai asks for a login: for the Realism LoRA, or LoRAs added from Civitai links in Vision's LoRA window |
 | `ENABLE_REFMOD` | `false` | `true` installs [ComfyUI-MiniMaxH3Mod](https://github.com/Luisacaotica/ComfyUI-MiniMaxH3Mod) (MIT, under construction, updated on every boot): **RefMods** in Vision's Video tab, references made from pictures without training |
+| `ENABLE_FACEREFINE` | `true` | `true` installs [ComfyUI-H3-FaceRefine](https://github.com/Carasibana/ComfyUI-H3-FaceRefine) (updated on every boot), the `MiniMaxH3NativeAudioLock` node it uses for lipsync, and the `face_yolov8m.pt` face detector (about 50 MB): **Refine faces…** in a video's ⋯ menu |
 | `GDRIVE_FOLDER` | — | A Google Drive folder's link, for saving and opening projects there (see below) |
 | `GDRIVE_TOKEN` | — | The Google sign-in for that folder, from `rclone authorize "drive"` (see below) |
 
