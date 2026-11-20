@@ -46,6 +46,10 @@ RUN git clone https://github.com/Timster666/comfyui-minimax-h3-vision.git /opt/C
 # Keep the PyTorch installed above when start.sh installs custom nodes' packages.
 RUN pip freeze | grep -iE "^(torch|torchvision|torchaudio)==" > /opt/torch-constraints.txt
 
+# The Python packages of Carasibana's ComfyUI-H3-FaceRefine (Vision's Refine faces, ENABLE_FACEREFINE), baked in so
+# InsightFace isn't compiled again on every boot. onnxruntime runs InsightFace's face matcher.
+RUN pip install -c /opt/torch-constraints.txt ultralytics scipy insightface "scenedetect>=0.7" onnxruntime
+
 # Hugging Face CLI with Xet support (Xet-backed repos = fast downloads)
 RUN pip install "huggingface_hub[hf_xet]"
 
