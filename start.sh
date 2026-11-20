@@ -13,6 +13,7 @@ ENABLE_HYPERFLOW="${ENABLE_HYPERFLOW:-true}"            # HyperFlow H3 Flash, IN
 ENABLE_MINIMAX_H3="${ENABLE_MINIMAX_H3:-${ENABLE_H3_TURBO:-true}}"   # MiniMax H3 + H3 Turbo: 2 x 21 GB + Turbo LoRA
 ENABLE_SINGULARITY="${ENABLE_SINGULARITY:-true}"        # Singularity v2 (21 GB)
 ENABLE_10EROS="${ENABLE_10EROS:-true}"                  # 10Eros Max beta 7 (22.9 GB)
+ENABLE_PRISM="${ENABLE_PRISM:-true}"                    # PRISM, Singularity v2 x 10Eros Max merge (20.3 GB)
 REALISM_LORA="${REALISM_LORA:-true}"                    # MMH3-Realism-V2 LoRA from Civitai (71 MB)
 LIVE_PREVIEW="${LIVE_PREVIEW:-true}"                    # taeh3 moving live preview while a video renders (23 MB)
 # Image tab (MOSS-Image)
@@ -180,7 +181,7 @@ done
 # found by name anywhere in the repo (some sit in subfolders there). Gated groups (Klein) need HF_TOKEN.
 CATALOG="$VISION/model_catalog.json"
 [[ -f "$CATALOG" ]] || CATALOG=/opt/ComfyUI/custom_nodes/comfyui-minimax-h3-vision/model_catalog.json
-export HF_TOKEN ENABLE_HYPERFLOW ENABLE_MINIMAX_H3 ENABLE_SINGULARITY ENABLE_10EROS LIVE_PREVIEW \
+export HF_TOKEN ENABLE_HYPERFLOW ENABLE_MINIMAX_H3 ENABLE_SINGULARITY ENABLE_10EROS ENABLE_PRISM LIVE_PREVIEW \
        ENABLE_MOSS_IMAGE ENABLE_MOSS_TURBO ENABLE_MOSS_BF16 ENABLE_MOSS_EDIT \
        ENABLE_KLEIN_9B_BF16 ENABLE_KLEIN_9B ENABLE_KLEIN_9B_BASE ENABLE_BFS_KLEIN ENABLE_PH3_IMAGE ENABLE_PH3_UPSAMPLER \
        ENABLE_H3_IMAGE ENABLE_H3_IMAGE_W4A8
@@ -218,7 +219,7 @@ CIVITAI=()
 is_on "$REALISM_LORA" && CIVITAI+=("3041489|v2|realism.*\.safetensors$|hyperflow|MMH3-Realism-V2.safetensors|loras/MiniMax H3|MMH3-Realism*.safetensors")
 
 any_model=false
-for v in ENABLE_HYPERFLOW ENABLE_MINIMAX_H3 ENABLE_SINGULARITY ENABLE_10EROS; do
+for v in ENABLE_HYPERFLOW ENABLE_MINIMAX_H3 ENABLE_SINGULARITY ENABLE_10EROS ENABLE_PRISM; do
   is_on "${!v}" && any_model=true
 done
 $any_model || echo "[start] !!! No MiniMax H3 checkpoint switched on — the Video tab can't render. Set ENABLE_HYPERFLOW=true."
