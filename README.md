@@ -89,7 +89,7 @@ With the first three off, a **100 GB** volume is enough.
 | `CIVITAI_TOKEN` | — | Only if Civitai asks for a login: for the Realism LoRA, or LoRAs added from Civitai links in Vision's LoRA window |
 | `ENABLE_REFMOD` | `false` | `true` installs [ComfyUI-MiniMaxH3Mod](https://github.com/Luisacaotica/ComfyUI-MiniMaxH3Mod) (MIT, under construction, updated on every boot): **RefMods** in Vision's Video tab, references made from pictures without training |
 | `ENABLE_FACEREFINE` | `true` | `true` installs [ComfyUI-H3-FaceRefine](https://github.com/Carasibana/ComfyUI-H3-FaceRefine) (updated on every boot), the `MiniMaxH3NativeAudioLock` node it uses for lipsync, and the `face_yolov8m.pt` face detector (about 50 MB): **Refine faces…** in a video's ⋯ menu |
-| `ENABLE_SWAP` | `true` | With `ENABLE_MINIMAX_H3`: Alissonerdx's [Character Swap v1.1 and Head Swap v1.0](https://huggingface.co/Alissonerdx/Minimax-H3-ComfyUI) LoRAs, the DMD 8-step turbo LoRA they run with, and BiRefNet: **Swap character…** in a video's ⋯ menu |
+| `ENABLE_SWAP` | `true` | With `ENABLE_MINIMAX_H3`: Alissonerdx's [Character Swap v1.1, Head Swap v1.0, Motion Transfer v1.0 and TARA v1.0](https://huggingface.co/Alissonerdx/Minimax-H3-ComfyUI) LoRAs, the DMD 8-step turbo LoRA, BiRefNet and SAM 3.1, plus his [ComfyUI-BFSNodes](https://github.com/alisson-anjos/ComfyUI-BFSNodes) (updated on every boot) for TARA: **Swap character…** and **Motion from** |
 | `GDRIVE_FOLDER` | — | A Google Drive folder's link, for saving and opening projects there (see below) |
 | `GDRIVE_TOKEN` | — | The Google sign-in for that folder, from `rclone authorize "drive"` (see below) |
 
