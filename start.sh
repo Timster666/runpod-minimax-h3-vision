@@ -14,7 +14,7 @@ ENABLE_MINIMAX_H3="${ENABLE_MINIMAX_H3:-${ENABLE_H3_TURBO:-true}}"   # MiniMax H
 ENABLE_SINGULARITY="${ENABLE_SINGULARITY:-true}"        # Singularity v2 (21 GB)
 ENABLE_10EROS="${ENABLE_10EROS:-true}"                  # 10Eros Max beta 7 (22.9 GB)
 ENABLE_PRISM="${ENABLE_PRISM:-true}"                    # PRISM, Singularity v2 x 10Eros Max merge (20.3 GB)
-ENABLE_SWAP="${ENABLE_SWAP:-true}"                      # Swap character: Alissonerdx's Character/Head Swap LoRAs + DMD turbo + BiRefNet (with ENABLE_MINIMAX_H3)
+ENABLE_SWAP="${ENABLE_SWAP:-true}"                      # Swap and Motion: Alissonerdx's swap/motion/TARA LoRAs + DMD turbo + BiRefNet + SAM 3.1, and ComfyUI-BFSNodes (with ENABLE_MINIMAX_H3)
 REALISM_LORA="${REALISM_LORA:-true}"                    # MMH3-Realism-V2 LoRA from Civitai (71 MB)
 LIVE_PREVIEW="${LIVE_PREVIEW:-true}"                    # taeh3 moving live preview while a video renders (23 MB)
 # Image tab (MOSS-Image)
@@ -133,6 +133,20 @@ if is_on "$ENABLE_FACEREFINE"; then
       echo "[start] !!! Couldn't install ComfyUI-H3-NativeAudioLock" >&2
     fi
     rm -rf /tmp/h3-audiolock
+  fi
+fi
+
+# Swap and Motion (optional): Alissonerdx's ComfyUI-BFSNodes, for Motion Transfer TARA's temporal alignment
+# (BFSMiniMaxH3NativeTemporal), updated on every boot. The LoRAs come with the models below (group swap).
+BFSNODES="$COMFY/custom_nodes/ComfyUI-BFSNodes"
+if is_on "$ENABLE_SWAP"; then
+  if [[ -d "$BFSNODES/.git" ]]; then
+    echo "[start] Updating ComfyUI-BFSNodes ..."
+    git -C "$BFSNODES" pull --ff-only || echo "[start] ComfyUI-BFSNodes update failed (continuing with the copy on the volume)"
+  else
+    echo "[start] Installing ComfyUI-BFSNodes (TARA) ..."
+    git clone --depth 1 https://github.com/alisson-anjos/ComfyUI-BFSNodes.git "$BFSNODES" \
+      || echo "[start] !!! Couldn't install ComfyUI-BFSNodes" >&2
   fi
 fi
 
