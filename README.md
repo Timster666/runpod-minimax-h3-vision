@@ -20,6 +20,8 @@ The image also has [LanPaint](https://github.com/scraed/LanPaint), the inpaintin
 | **MiniMax H3** and **MiniMax H3 Turbo** | 42 GB |
 | **Singularity v2** | 21 GB |
 | **10Eros Max beta 7** | 23 GB |
+| **10Eros Max v1.0** | 23 GB |
+| **10Eros Max v1.0 full** (off by default) | 40 GB |
 | **PRISM** (a merge of Singularity v2 and 10Eros Max) | 20 GB |
 
 **Image models, in the Image tab's model menu:**
@@ -63,6 +65,8 @@ Every model has an on/off switch. Click **Edit Template** when you deploy and se
 | `ENABLE_MINIMAX_H3` | MiniMax H3 + Turbo | 42 GB |
 | `ENABLE_SINGULARITY` | Singularity v2 | 21 GB |
 | `ENABLE_10EROS` | 10Eros Max beta 7 | 23 GB |
+| `ENABLE_10EROS_V1` | 10Eros Max v1.0 (INT8 HQ) | 23 GB |
+| `ENABLE_10EROS_V1_FULL` | 10Eros Max v1.0 unquantized, off by default (for the RTX PRO 6000) | 40 GB |
 | `ENABLE_PRISM` | PRISM (Singularity v2 x 10Eros Max) | 20 GB |
 | `ENABLE_MOSS_TURBO` | MOSS-Image 8-step turbo | 5.4 GB |
 | `ENABLE_MOSS_BF16` | MOSS-Image SFT full-size BF16 | 10.2 GB |
